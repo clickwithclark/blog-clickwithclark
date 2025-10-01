@@ -358,6 +358,51 @@ For anything you're publishing to npm or using in production, stick with proper 
 
 Here are common issues developers run into when migrating:
 
+### Missing `__dirname` and `__filename`
+
+One of the most common gotchas when migrating to ESM: `__dirname` and `__filename` don't exist in ESM modules.
+
+**Before (CommonJS):**
+
+```js
+console.log(__dirname);  // '/Users/you/project/src'
+console.log(__filename); // '/Users/you/project/src/index.js'
+```
+
+**After (ESM):**
+
+```js
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+console.log(__dirname);  // '/Users/you/project/src'
+console.log(__filename); // '/Users/you/project/src/index.js'
+```
+
+**What's happening here?**
+
+* `import.meta.url` gives you the file's URL as a string (e.g., [`file:///Users/you/project/src/index.js`](file:///Users/you/project/src/index.js))
+    
+* `fileURLToPath()` converts that URL to a normal file path
+    
+* `dirname()` extracts the directory path from the file path
+    
+
+**Quick tip:** If you only need the directory for constructing paths to other files, you can often use `new URL()` instead:
+
+```js
+// Load a file relative to the current module
+import { readFileSync } from 'fs';
+
+const configPath = new URL('./config.json', import.meta.url);
+const config = JSON.parse(readFileSync(configPath, 'utf-8'));
+```
+
+This approach is cleaner and doesn't require the path conversions.
+
 ### Missing File Extensions
 
 ESM requires full paths including file extensions.

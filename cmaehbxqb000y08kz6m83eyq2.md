@@ -384,7 +384,7 @@ console.log(__filename); // '/Users/you/project/src/index.js'
 
 **What's happening here?**
 
-* `import.meta.url` gives you the file's URL as a string (e.g., \[`file:///Users/you/project/src/index.js`\](file:///Users/you/project/src/index.js))
+* `import.meta.url` gives you the file's URL as a string (e.g., `file:///Users/you/project/src/index.js`)
     
 * `fileURLToPath()` converts that URL to a normal file path
     

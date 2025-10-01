@@ -372,7 +372,7 @@ import myUtil from './util.js';
 
 ### Mixing `require` with `import`
 
-Don’t mix module systems in the same file. Pick one, ideally ESM, for new code.
+Don’t mix module systems in the same file. Pick one, ideally ESM for new code.
 
 ### Forgetting Top-Level `await` Limitations
 

@@ -281,10 +281,15 @@ module.exports = {
 };
 
 // ESM
-export { default as doSomething, helperOne, helperTwo };
+export { doSomething as default, helperOne, helperTwo };
+// or written:
+export default doSomething;
+export { helperOne, helperTwo };
 ```
 
 ### 9\. Hybrid Module (Works with ESM and CommonJS)
+
+While it's technically possible to write code that works in both module systems, it's rarely recommended for production code. Here's an example:
 
 ```js
 const BASE_URL = 'https://api.example.com';
@@ -306,7 +311,7 @@ const apiClient = { get, post };
 export { get, post, BASE_URL };
 export default apiClient;
 
-if (typeof module !== 'undefined') {
+if (typeof module !== 'undefined' && module.exports) {
   module.exports = apiClient;
   module.exports.default = apiClient;
   module.exports.get = get;
@@ -315,7 +320,39 @@ if (typeof module !== 'undefined') {
 }
 ```
 
-This way, CommonJS and ESM can work smoothly; However, nowadays most folks create a UMD- Universal Module Definition using modern bundlers for their project (Webpack, Rollup, esbuild). A true UMD build contains logic to detect the current runtime environment (CommonJS, AMD, or browser globals) and adapt accordingly.
+> **Important**: This approach has limitations and won't work reliably across all environments. The `typeof module !== 'undefined'` check can be problematic with modern bundlers and may not behave as expected in browser environments.
+
+**Better alternatives:**
+
+1. **Use a bundler** — Tools like Webpack, Rollup, or esbuild can generate proper dual-format builds (ESM + CommonJS) from a single ESM source. This is the recommended approach for libraries.
+    
+2. **Publish dual formats** — Write your code in ESM, then use a build tool to output both ESM and CommonJS versions:
+    
+    ```json
+    {
+      "type": "module",
+      "main": "./dist/index.cjs",
+      "module": "./dist/index.js",
+      "exports": {
+        "import": "./dist/index.js",
+        "require": "./dist/index.cjs"
+      }
+    }
+    ```
+    
+3. **ESM-only** — For new projects, consider going ESM-only. Most modern environments support it, and you can always use dynamic `import()` in CommonJS if needed.
+    
+
+**When the hybrid approach might make sense:**
+
+* Quick prototypes or internal tools
+    
+* Educational examples
+    
+* Simple utility files you're copying between projects
+    
+
+For anything you're publishing to npm or using in production, stick with proper tooling to create a true Universal Module Definition (UMD) build or dual-format distribution. Modern bundlers handle the complexity of detecting the runtime environment (CommonJS, AMD, or browser globals) and adapting accordingly, without the fragility of manual runtime checks.
 
 ## Common Pitfalls
 
@@ -335,7 +372,7 @@ import myUtil from './util.js';
 
 ### Mixing `require` with `import`
 
-Don’t mix module systems in the same file. Pick one — ideally ESM for new code.
+Don’t mix module systems in the same file. Pick one, ideally ESM, for new code.
 
 ### Forgetting Top-Level `await` Limitations
 

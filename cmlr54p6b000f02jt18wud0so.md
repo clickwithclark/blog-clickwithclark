@@ -10,9 +10,6 @@ tags: terminal, workflow, git, branching, worktrees
 
 ---
 
-
-
-
 ## Why Context Switching in Git Is More Painful Than It Needs To Be
 
 You're deep into a feature branch. Tests are half-written, there are uncommitted changes everywhere, and your teammate pings you - urgent hotfix needed on `main`. Now what?
@@ -56,8 +53,9 @@ mkdir ~/Repositories/worktrees
 Two rules to remember before you touch anything:
 
 * Worktrees should live **outside** the main repo folder
-
+    
 * Use a **normal clone**, not `git clone --bare` (more on this below)
+    
 
 ---
 
@@ -178,8 +176,11 @@ Git sets this fetch refspec:
 That means:
 
 * Remote branches are stored as **remote-tracking branches**
+    
 * They live under `refs/remotes/origin/*`
+    
 * You can reference them as `origin/main`, `origin/feature`, etc.
+    
 
 This is what makes commands like:
 
@@ -218,8 +219,11 @@ In other words, the repository stops maintaining remote-tracking branches. It tr
 Because `refs/remotes/origin/*` is never created:
 
 * `origin/main` does not exist
+    
 * `origin/feature` does not exist
+    
 * Commands that rely on remote-tracking refs fail
+    
 
 So when you run:
 
@@ -229,7 +233,7 @@ git rebase origin/main
 
 Git is correct to say:
 
-```
+```plaintext
 fatal: invalid upstream 'origin/main'
 ```
 
@@ -240,7 +244,7 @@ That reference was never created.
 On a repo by repo basis you would now have to add the command:
 
 ```bash
-git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*" 
+git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 ```
 
 This restores remote-tracking branches, but you are now overriding the default behaviour of a bare clone.
@@ -255,13 +259,14 @@ A bare repository is designed to be a **central repository**, not a working repo
 
 Central repositories:
 
-- Do not check out branches
-
-- Do not maintain remote-tracking branches
-
-- Usually receive pushes
-
-- Do not need `refs/remotes/origin/*` intentionally
+* Do not check out branches
+    
+* Do not maintain remote-tracking branches
+    
+* Usually receive pushes
+    
+* Do not need `refs/remotes/origin/*` intentionally
+    
 
 Technically, you can run:
 
@@ -269,7 +274,7 @@ Technically, you can run:
 git config --global remote.origin.fetch ...
 ```
 
- When cloning, Git writes a `[remote "origin"]` section into the repository’s local config, including its own fetch refspec:
+When cloning, Git writes a `[remote "origin"]` section into the repository’s local config, including its own fetch refspec:
 
 ```text
 [remote "origin"]
@@ -283,7 +288,7 @@ Because local configuration overrides global configuration, a globally defined `
 system < global < local
 ```
 
-If you insist and really want to use `--bare` repos with future repo accommodation you will need some automation, [Morgan Cugerone](https://morgan.cugerone.com/) has one of the more [elegant solutions](https://archive.is/UmAsb#50%) I have found to tackle this development style. As you can see I opted for a simpler workflow.
+If you insist and really want to use `--bare` repos with future repo accommodation you will need some automation, [Morgan Cugerone](https://morgan.cugerone.com/) has one of the more [elegant solutions](https://archive.is/UmAsb#50%25) I have found to tackle this development style. As you can see I opted for a simpler workflow.
 
 ---
 
@@ -295,23 +300,24 @@ If you insist and really want to use `--bare` repos with future repo accommodati
 git worktree add -b new-branch ../worktrees/myproject/new-branch
 ```
 
-**The worktree folder shows up in git status.** You put the worktree inside the repo folder. Move it outside, or add the path to `.git/info/exclude` (not `.gitignore` - you don't want this tracked).
-
-**git worktree list shows a prunable worktree.** You deleted the folder manually. Run `git worktree prune` to clean up the reference.
-
-**node\_modules missing in new worktree.** Each worktree needs its own dependency install. Dependencies are not shared. Run `npm install` (or equivalent) in each worktree folder.
+* **The worktree folder shows up in git status.** You put the worktree inside the repo folder. Move it outside, or add the path to `.git/info/exclude` (not `.gitignore` - you don't want this tracked).
+    
+* **git worktree list shows a prunable worktree.** You deleted the folder manually. Run `git worktree prune` to clean up the reference.
+    
+* **node\_modules missing in new worktree.** Each worktree needs its own dependency install. Dependencies are not shared. Run `npm install` (or equivalent) in each worktree folder.
+    
 
 ---
 
 ## Summary
 
-| Task                             | Command                                                       |
-| -------------------------------- | ------------------------------------------------------------- |
-| Add worktree for existing branch | `git wt-add branch-name` (my solution)                        |
+| Task | Command |
+| --- | --- |
+| Add worktree for existing branch | `git wt-add branch-name` (my solution) |
 | Add a worktree with a new branch | `git worktree add -b new-branch ../worktrees/repo/new-branch` |
-| List all worktrees               | `git worktree list`                                           |
-| Remove a worktree                | `git worktree remove ../worktrees/repo/branch`                |
-| Clean up deleted worktrees       | `git worktree prune`                                          |
+| List all worktrees | `git worktree list` |
+| Remove a worktree | `git worktree remove ../worktrees/repo/branch` |
+| Clean up deleted worktrees | `git worktree prune` |
 
 ---
 

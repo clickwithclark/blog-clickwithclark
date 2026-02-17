@@ -294,7 +294,7 @@ If you insist and really want to use `--bare` repos with future repo accommodati
 
 ## Common Worktree Issues
 
-**"cannot checkout - already checked out"** You tried to add a worktree on a branch that's already checked out somewhere else. Git prevents this. Create a new branch instead:
+* **"cannot checkout - already checked out"** You tried to add a worktree on a branch that's already checked out somewhere else. Git prevents this. Create a new branch instead:
 
 ```bash
 git worktree add -b new-branch ../worktrees/myproject/new-branch
